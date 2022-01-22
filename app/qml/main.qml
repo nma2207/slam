@@ -10,15 +10,11 @@ Window {
         anchors.fill: parent
         height: 480
         width: 640
-        Timer {
-            interval: 20
-            running: true
-            repeat: true
-            onTriggered: {
-                img.source = "image://imageholder/row?" + Math.random()
-            }
-        }
     }
 
+    function updateImage()
+    {
+        img.source = "image://imageholder/row?" + Math.random()
+    }
 
 }

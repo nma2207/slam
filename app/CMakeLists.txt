@@ -11,6 +11,7 @@ find_package(OpenCV 4 REQUIRED)
 include_directories(
     ${OpenCV_INCLUDE_DIRS}
     "include/"
+    "../image_process/include"
     )
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES main.cpp src/*.cpp)
@@ -32,4 +33,5 @@ target_link_libraries(app
     Qt6::Multimedia
     Qt::MultimediaWidgets
     ${OpenCV_LIBS}
+    image_process
     )

@@ -1,28 +1,30 @@
-#ifndef IMAGEHOLDER_H
-#define IMAGEHOLDER_H
-//#include <Q
+#pragma once
+
 #include <QObject>
 #include <QQuickImageProvider>
 
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 
+#include "image_controller.h"
+
+namespace app
+{
+
 class ImageHolder : public QQuickImageProvider
 {
     Q_OBJECT
 public:
     explicit ImageHolder();
-    ~ImageHolder()
-    {
-        qDebug() << "RELEASE";
-        m_cap.release();
-    }
+    ~ImageHolder();
+    void setController(ImageController* controller);
+
 
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize& requestedSize) override;
 
 private:
-    cv::VideoCapture m_cap;
+    ImageController* m_controller;
 
 };
 
-#endif // IMAGEHOLDER_H
+} // namespace app
