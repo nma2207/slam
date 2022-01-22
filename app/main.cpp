@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
     QQmlEngine engine;
     engine.addImageProvider("imageholder", &holder);
     QQuickView view{&engine, nullptr};
-    const QUrl url(u"qrc:/app/slam/qml/main.qml"_qs);
+    //const QUrl url(u"qrc:/app/slam/qml/main.qml"_qs);
+    const QUrl url{"qrc:/qml/main.qml"};
     view.setSource(url);
     QObject* rootObject = view.rootObject();
 
@@ -28,5 +29,6 @@ int main(int argc, char *argv[])
     QObject::connect(&controller, SIGNAL(imageChanged()), rootObject, SLOT(updateImage()));
 
     view.show();
+    view.setTitle("SLAM");
     return app.exec();
 }
