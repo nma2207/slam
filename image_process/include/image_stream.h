@@ -4,9 +4,10 @@
 
 namespace image_process
 {
-class ImageSource
+class ImageStream
 {
 public:
+    virtual ~ImageStream(){}
     virtual cv::Mat read() = 0;
 };
 
