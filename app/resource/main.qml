@@ -15,7 +15,6 @@ Item {
 
     function updateImage()
     {
-        console.log("UPDATE");
         img.source = "image://imageholder/row?" + Math.random()
     }
 
