@@ -13,7 +13,7 @@ image_process::VideoStream::~VideoStream()
 
 cv::Mat image_process::VideoStream::read()
 {
-    if (m_cap.isOpened()) {
+    if (!m_cap.isOpened()) {
         std::cerr << "Camera is not open!" << std::endl;
         return {};
     }

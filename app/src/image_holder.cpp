@@ -13,6 +13,12 @@ app::ImageHolder::~ImageHolder()
 
 }
 
+void app::ImageHolder::setController(ImageController *controller)
+{
+    m_controller = controller;
+}
+
+
 QPixmap app::ImageHolder::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
     QPixmap result = m_controller->getImage();

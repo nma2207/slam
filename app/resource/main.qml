@@ -1,10 +1,11 @@
 import QtQuick
 
-Window {
+Item {
+    id: mainWindow
     width: 640
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    //title: qsTr("Hello World")
     Image {
         id: img
         anchors.fill: parent
@@ -14,6 +15,7 @@ Window {
 
     function updateImage()
     {
+        console.log("UPDATE");
         img.source = "image://imageholder/row?" + Math.random()
     }
 

@@ -26,6 +26,7 @@ qt_add_qml_module(app
     QML_FILES qml/main.qml
 )
 
+
 target_compile_definitions(app
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(app

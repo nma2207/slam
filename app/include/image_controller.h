@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QObject>
+#include <QTimer>
 
 #include "video_stream.h"
 
@@ -18,6 +19,7 @@ signals:
 
 private:
     image_process::VideoStream m_stream;
+    QTimer m_timer;
 
 
 };
