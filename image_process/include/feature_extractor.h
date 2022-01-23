@@ -9,7 +9,8 @@ namespace image_process
 
 class FeatureExtractor
 {
-    virtual std::pair<cv::KeyPoint, cv::Mat> detect(const cv::Mat&) = 0;
+public:
+    virtual std::pair<std::vector<cv::KeyPoint>, cv::Mat> detect(const cv::Mat&) = 0;
 
 };
 

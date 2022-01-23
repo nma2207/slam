@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(app VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_STANDARD 17)
 
 find_package(Qt6 6.2 COMPONENTS Quick Multimedia MultimediaWidgets Core REQUIRED)
 find_package(OpenCV 4 REQUIRED)

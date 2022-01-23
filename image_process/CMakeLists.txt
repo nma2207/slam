@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(image_process VERSION 0.1 LANGUAGES CXX)
+set (CMAKE_CXX_STANDARD 17)
+
 find_package(OpenCV 4 REQUIRED)
 include_directories(
     ${OpenCV_INCLUDE_DIRS}
