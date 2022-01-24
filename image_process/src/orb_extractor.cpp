@@ -5,7 +5,7 @@ image_process::OrbExtractor::OrbExtractor()
     m_extractor = cv::ORB::create();
 }
 
-std::pair<std::vector<cv::KeyPoint>, cv::Mat> image_process::OrbExtractor::detect(const cv::Mat& img)
+std::tuple<std::vector<cv::KeyPoint>, cv::Mat> image_process::OrbExtractor::detect(const cv::Mat& img)
 {
     std::vector<cv::KeyPoint> kp;
     cv::Mat descriptors;

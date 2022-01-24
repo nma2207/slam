@@ -23,10 +23,10 @@ QPixmap app::ImageController::getImage()
 
     if (m_extractor)
     {
-        auto features = m_extractor->detect(temp);
-        cv::drawKeypoints(temp, features.first, temp, cv::Scalar{0, 255, 0});
+        auto [keypoints, _] = m_extractor->detect(temp);
+        cv::drawKeypoints(temp, keypoints, temp, cv::Scalar{0, 255, 0});
     }
-    QImage dest= QImage((uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_RGB888);
+    QImage dest= QImage((uchar*) temp.data, temp.cols, temp.rows, temp.step, QImage::Format_BGR888);
     return QPixmap::fromImage(dest);
 }
 

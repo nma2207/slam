@@ -11,7 +11,7 @@ class OrbExtractor : public FeatureExtractor
 public:
     OrbExtractor();
 
-    std::pair<std::vector<cv::KeyPoint>, cv::Mat> detect(const cv::Mat &);
+    std::tuple<std::vector<cv::KeyPoint>, cv::Mat> detect(const cv::Mat &);
 private:
 
     cv::Ptr<cv::ORB> m_extractor;
