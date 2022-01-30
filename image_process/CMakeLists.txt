@@ -6,6 +6,7 @@ find_package(OpenCV 4 REQUIRED)
 include_directories(
     ${OpenCV_INCLUDE_DIRS}
     "include/"
+    "third_party/"
     )
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.cpp)
@@ -14,4 +15,5 @@ add_library(image_process STATIC ${HEADERS} ${SOURCES})
 
 target_link_libraries(image_process
     PRIVATE
-    ${OpenCV_LIBS})
+    ${OpenCV_LIBS}
+    ${PROJECT_SOURCE_DIR}/third_party/onnxruntime/lib/libonnxruntime.so)
