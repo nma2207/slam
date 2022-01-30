@@ -6,7 +6,7 @@ find_package(OpenCV 4 REQUIRED)
 include_directories(
     ${OpenCV_INCLUDE_DIRS}
     "include/"
-    "third_party/"
+    "third_party/onnxruntime/include"
     )
 file(GLOB HEADERS include/*.h)
 file(GLOB SOURCES src/*.cpp)

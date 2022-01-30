@@ -1,11 +1,25 @@
-#ifndef ONNXNEXTWORK_H
-#define ONNXNEXTWORK_H
+#pragma once
 
+#include <string>
+#include <opencv2/core.hpp>
+
+#include "onnxruntime_cxx_api.h"
+
+namespace image_process
+{
 
 class OnnxNextwork
 {
 public:
-    OnnxNextwork();
+    explicit OnnxNextwork(const std::string& modelPath);
+    //void loadModel(const std::string& modelPath);
+    cv::Mat predict(const cv::Mat& input);
+
+private:
+    Ort::Env m_env;
+    Ort::SessionOptions m_sessionOptions;
+    Ort::Session m_session;
+
 };
 
-#endif // ONNXNEXTWORK_H
+} // namespace image_process
