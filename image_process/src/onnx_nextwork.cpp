@@ -29,8 +29,9 @@ cv::Mat image_process::OnnxNextwork::predict(const cv::Mat &input)
     std::vector<char*> inputName = {m_session.GetInputName(0, allocator)};
     auto outputTensor = m_session.Run(Ort::RunOptions{nullptr}, inputName.data(), &inputTensor, 1,
                                       outputNodeNames.data(), 1);
-    m_session.GetOutputTypeInfo(0).GetTensorTypeAndShapeInfo().GetShape();
+    auto outputShape = m_session.GetOutputTypeInfo(0).GetTensorTypeAndShapeInfo().GetShape();
+    std::vector<int> shape = *reinterpret_cast<std::vector<int>*>(&outputShape);
     float* floatarr = outputTensor.front().GetTensorMutableData<float>();
-
-    return cv::Mat{};
+    cv::Mat predict{shape, CV_32F, floatarr};
+    return predict;
 }
