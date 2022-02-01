@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+
 #include <opencv2/core.hpp>
 
 #include "onnxruntime_cxx_api.h"
@@ -17,7 +18,6 @@ public:
 
 private:
     Ort::Env m_env;
-    Ort::SessionOptions m_sessionOptions;
     Ort::Session m_session;
 
 };

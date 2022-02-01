@@ -1,14 +1,23 @@
 #include "onnx_nextwork.h"
 
 #include <opencv2/dnn/dnn.hpp>
+
+namespace {
+
+Ort::SessionOptions getDefaultSessionOption()
+{
+    Ort::SessionOptions options;
+    options.SetInterOpNumThreads(1);
+    options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+    return options;
+}
+
+} // namespace
+
 image_process::OnnxNextwork::OnnxNextwork(const std::string& modelPath)
     : m_env{ORT_LOGGING_LEVEL_WARNING}
-    , m_sessionOptions{}
-    , m_session{m_env, modelPath.c_str(), m_sessionOptions}
+    , m_session{m_env, modelPath.c_str(), getDefaultSessionOption()}
 {
-    m_sessionOptions.SetInterOpNumThreads(1);
-    m_sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-    m_session =Ort::Session{m_env, modelPath.c_str(), m_sessionOptions};
 }
 
 cv::Mat image_process::OnnxNextwork::predict(const cv::Mat &input)
