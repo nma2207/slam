@@ -14,3 +14,11 @@ std::tuple<std::vector<cv::KeyPoint>, cv::Mat> image_process::OrbExtractor::dete
 
     return {kp, descriptors};
 }
+
+cv::Mat image_process::OrbExtractor::process(const cv::Mat &image)
+{
+    auto [keypoints, _] = this->detect(image);
+    cv::Mat result{};
+    cv::drawKeypoints(image, keypoints, result, cv::Scalar{0, 255, 0});
+    return result;
+}
