@@ -8,7 +8,7 @@
 
 app::ImageController::ImageController(QObject *parent)
     : QObject{parent}
-    , m_stream{}
+    , m_stream{0}
 {
     m_timer.setInterval(100);
     m_timer.setSingleShot(false);
