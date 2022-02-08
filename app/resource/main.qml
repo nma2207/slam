@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Controls
-import info
+//import info
 
 Item {
     id: mainWindow
@@ -23,11 +23,12 @@ Item {
         anchors.left: parent.leftor
         textRole: "text"
         valueRole: "value"
-        Component.onCompleted: currentIndex = indexOfValue(ProcessorType.Yolo)
+        Component.onCompleted: currentIndex = indexOfValue(0)
         model: ListModel{
             id: model
-            ListElement{ value: ProcessorType.OrbExtractor;text: qsTr("OrbExtractor") }
-            ListElement{ value: ProcessorType.Yolo;text: qsTr("Yolo detector") }
+            ListElement{ value: 0; text: qsTr("None") }
+            ListElement{ value: 1; text: qsTr("OrbExtractor") }
+            ListElement{ value: 2; text: qsTr("Yolo detector") }
         }
         onCurrentValueChanged: {
             processorTypeChanged(currentValue)

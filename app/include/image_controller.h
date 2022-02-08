@@ -5,7 +5,7 @@
 #include <QDebug>
 
 #include "video_stream.h"
-#include "feature_extractor.h"
+#include "image_processor.h"
 
 namespace app
 {
@@ -16,8 +16,9 @@ class ProcessorType : public QObject
 public:
     enum State
     {
-          OrbExtractor
-        , Yolo
+        None,
+        OrbExtractor,
+        Yolo
     };
     Q_ENUM(State)
 };
@@ -28,22 +29,18 @@ class ImageController : public QObject
 public:
     explicit ImageController(QObject *parent = nullptr);
     QPixmap getImage();
-    void setExtractor(const std::shared_ptr<image_process::FeatureExtractor> &newExtractor);
+    //void setExtractor(const std::shared_ptr<image_process::FeatureExtractor> &newExtractor);
+public slots:
+    void onProcessorTypeChanged(int t);
 
 signals:
     void imageChanged();
-public slots:
-    void onProcessorTypeChanged(int t)
-    {
-        ProcessorType::State type = static_cast<ProcessorType::State>(t);
-        qDebug() << type;
 
-    }
 private:
     image_process::VideoStream m_stream;
     QTimer m_timer;
 
-    std::shared_ptr<image_process::FeatureExtractor> m_extractor;
+    std::unique_ptr<image_process::ImageProcessor> m_processor;
 };
 
 } // namespace app

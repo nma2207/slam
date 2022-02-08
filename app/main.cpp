@@ -13,10 +13,10 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication appl(argc, argv);
-    qmlRegisterUncreatableType<app::ProcessorType>("info", 1, 0, "ProcessorType", "HUI");
+    //qmlRegisterUncreatableType<app::ProcessorType>("info", 1, 0, "ProcessorType", "HUI");
 
     app::ImageController controller{};
-    controller.setExtractor(std::make_shared<image_process::OrbExtractor>());
+    //controller.setExtractor(std::make_shared<image_process::OrbExtractor>());
     app::ImageHolder holder{};
     holder.setController(&controller);
 
