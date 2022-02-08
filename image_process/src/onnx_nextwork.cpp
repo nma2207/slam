@@ -3,6 +3,7 @@
 #include <numeric>
 
 #include <opencv2/dnn/dnn.hpp>
+#include <opencv2/imgproc.hpp>
 
 namespace {
 
@@ -47,7 +48,9 @@ cv::Mat image_process::OnnxNextwork::predict(const cv::Mat &input)
     const int width = m_inputShape[2];
     const int height = m_inputShape[3];
 
-    cv::Mat blob = cv::dnn::blobFromImage(input, 1/255, cv::Size{width, height}, cv::Scalar{}, true);
+    cv::Mat resized;
+    cv::resize(input, resized, cv::Size{width, height});
+    cv::Mat blob = cv::dnn::blobFromImage(resized, 1/255, cv::Size{width, height}, cv::Scalar{}, true);
     float* inputTensorValues = reinterpret_cast<float*>(blob.data);
 
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>

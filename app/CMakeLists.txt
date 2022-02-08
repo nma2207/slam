@@ -12,6 +12,7 @@ include_directories(
     ${OpenCV_INCLUDE_DIRS}
     "include/"
     "../image_process/include"
+    "../image_process/third_party/onnxruntime/include"
     )
 
 file(GLOB HEADERS include/*.h)

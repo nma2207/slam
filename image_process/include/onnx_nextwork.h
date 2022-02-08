@@ -4,7 +4,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "onnxruntime_cxx_api.h"
+#include <onnxruntime_cxx_api.h>
 
 namespace image_process
 {

@@ -2,4 +2,5 @@
     <qresource prefix="/qml">
         <file>main.qml</file>
     </qresource>
+    <qresource prefix="/onnx"/>
 </RCC>

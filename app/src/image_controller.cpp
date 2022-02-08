@@ -7,6 +7,7 @@
 #include <opencv2/features2d.hpp>
 
 #include "orb_extractor.h"
+#include "neuralnet_processor.h"
 
 namespace
 {
@@ -14,11 +15,16 @@ std::unique_ptr<image_process::ImageProcessor> getProcessor(app::ProcessorType::
 {
     switch (type)
     {
+    case app::ProcessorType::None:
+        return nullptr;
+        break;
+
     case app::ProcessorType::OrbExtractor:
         return std::make_unique<image_process::OrbExtractor>();
         break;
+
     case app::ProcessorType::Yolo:
-        return nullptr;
+        return std::make_unique<image_process::NeuralNetProcessor>("tinyyolov2-8.onnx");
         break;
     }
 
