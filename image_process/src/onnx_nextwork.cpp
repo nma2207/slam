@@ -33,6 +33,10 @@ std::vector<int> toInt(const std::vector<int64_t>& arr)
     return res;
 }
 
+int64_t getSize(const std::vector<int64_t> shape)
+{
+    return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies());
+}
 cv::Mat onnxPostProcess(const std::vector<cv::Mat>&)
 {
     return {};
@@ -46,21 +50,31 @@ image_process::OnnxNextwork::OnnxNextwork(const std::string& modelPath)
     , m_memoryInfo{Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault)}
     , m_allocator{}
 {
+    std::cout << "Input count" << m_session.GetInputCount() << std::endl;
+    m_input.count = m_session.GetInputCount();
+    m_input.shapes.reserve(m_input.count);
+    for(size_t i = 0; i < m_input.count; i++)
+    {
+        Ort::TypeInfo typeInfo = m_session.GetInputTypeInfo(i);
+        m_input.shapes.push_back(typeInfo.GetTensorTypeAndShapeInfo().GetShape());
+        m_input.names.push_back(m_session.GetInputName(i, m_allocator));
+        for(auto& t: m_input.shapes[i])
+        {
+            if (t < 0)
+                t = 1;
+        }
+    }
 
 
-    Ort::TypeInfo inputTypeInfo = m_session.GetInputTypeInfo(0);
-    m_inputShape = inputTypeInfo.GetTensorTypeAndShapeInfo().GetShape();
-    m_inputName = {m_session.GetInputName(0, m_allocator)};
-
-
-    Ort::TypeInfo outputTypeInfo = m_session.GetOutputTypeInfo(0);
-    size_t k = m_session.GetOutputCount();
-    m_outputShape = outputTypeInfo.GetTensorTypeAndShapeInfo().GetShape();
-    m_outputName = {m_session.GetOutputName(0, m_allocator)};
-
-    printVector(m_outputShape);
-    m_inputShape[0] = 1;
-    m_outputShape[0] = 1;
+    std::cout << "Output count" << m_session.GetOutputCount() << std::endl;
+    m_output.count = m_session.GetOutputCount();
+    m_output.shapes.reserve(m_output.count);
+    for(size_t i = 0; i < m_output.count; i++)
+    {
+        Ort::TypeInfo typeInfo = m_session.GetOutputTypeInfo(i);
+        m_output.shapes.push_back(typeInfo.GetTensorTypeAndShapeInfo().GetShape());
+        m_output.names.push_back(m_session.GetOutputName(i, m_allocator));
+    }
 
     postprocess = onnxPostProcess;
 }
@@ -69,30 +83,43 @@ cv::Mat image_process::OnnxNextwork::process(const cv::Mat &image)
 {
     cv::Mat preprocessedImage = preprocess(image);
 
-    const size_t inputTensorSize = m_inputShape[1] *m_inputShape[2] * m_inputShape[3];
+    const size_t inputTensorSize = m_input.shapes[0][1] * m_input.shapes[0][2] * m_input.shapes[0][3];
 
 
     std::vector<float> inputTensorValues(inputTensorSize);
     inputTensorValues.assign(preprocessedImage.begin<float>(), preprocessedImage.end<float>());
 
 
-
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>
-            (m_memoryInfo, inputTensorValues.data(), inputTensorSize, m_inputShape.data(), m_inputShape.size());
+            (m_memoryInfo, inputTensorValues.data(), inputTensorSize, m_input.shapes[0].data(), m_input.shapes[0].size());
 
     std::vector<Ort::Value> outputTensors = m_session.Run(
-                Ort::RunOptions{nullptr}, m_inputName.data(), &inputTensor, 1, m_outputName.data(), 1);
+                Ort::RunOptions{nullptr}, m_input.names.data(), &inputTensor, 1, m_output.names.data(), m_output.count);
 
-    Ort::Value& outputTensor = outputTensors.front();
-    float* floatarr = outputTensor.GetTensorMutableData<float>();
-    cv::Mat predict{toInt(m_outputShape), CV_32F, floatarr};
-    return predict;
+    std::vector<cv::Mat> predicts;
+    predicts.reserve(outputTensors.size());
+
+    for(auto& tensor : outputTensors)
+    {
+
+        auto shape = tensor.GetTensorTypeAndShapeInfo().GetShape();
+        int64_t count = getSize(shape);
+        std::cout << "Output count" << count;
+        const float *arr = tensor.GetTensorData<float>();
+        std::vector<float> vec;
+        vec.assign(arr, arr+count);
+        cv::Mat predict{toInt(shape), CV_32F, vec.data()};
+        predicts.push_back(predict);
+    }
+
+    //return postprocess(predicts);
+    return image;
 }
 
 cv::Mat image_process::OnnxNextwork::preprocess(const cv::Mat &image)
 {
-    const int width = m_inputShape[2];
-    const int height = m_inputShape[3];
+    const int width = m_input.shapes[0][2];
+    const int height = m_input.shapes[0][3];
 
     cv::Mat resizedImageBgr, resizedImageRgb, resizedImage, preprocessedImage;
 

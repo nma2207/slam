@@ -14,6 +14,15 @@ namespace image_process
 
 class OnnxNextwork : public ImageProcessor
 {
+    struct TensorInfo
+    {
+        using Shape = std::vector<int64_t>;
+
+        std::vector<const char*> names = {};
+        std::vector<Shape> shapes = {};
+        size_t count = 0;
+    };
+
 public:
     explicit OnnxNextwork(const std::string& modelPath);
     //void loadModel(const std::string& modelPath);
@@ -21,7 +30,8 @@ public:
 
 private:
     cv::Mat preprocess(const cv::Mat& image);
-    cv::Mat postprocess(const std::vector<cv::Mat>& predicts);
+    std::function<cv::Mat(const std::vector<cv::Mat>&)> postprocess;
+    //cv::Mat postprocess(const std::vector<cv::Mat>& predicts);
     //std::vector<cv::Mat> predict(const cv::Mat& input);
 
     Ort::Env m_env;
@@ -29,11 +39,8 @@ private:
     Ort::AllocatorWithDefaultOptions m_allocator;
     Ort::MemoryInfo m_memoryInfo;
 
-    std::vector<const char*> m_inputName;
-    std::vector<int64_t> m_inputShape;
-
-    std::vector<const char*> m_outputName;
-    std::vector<int64_t> m_outputShape;
+    TensorInfo m_input;
+    TensorInfo m_output;
 };
 
 } // namespace image_process
