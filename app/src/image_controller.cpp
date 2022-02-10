@@ -7,7 +7,7 @@
 #include <opencv2/features2d.hpp>
 
 #include "orb_extractor.h"
-#include "neuralnet_processor.h"
+#include "onnx_nextwork.h"
 
 namespace
 {
@@ -24,7 +24,7 @@ std::unique_ptr<image_process::ImageProcessor> getProcessor(app::ProcessorType::
         break;
 
     case app::ProcessorType::Yolo:
-        return std::make_unique<image_process::NeuralNetProcessor>("ssd-12-int8.onnx");
+        return std::make_unique<image_process::OnnxNextwork>("ssd-12-int8.onnx");
         break;
     }
 
