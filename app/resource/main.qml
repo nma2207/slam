@@ -4,8 +4,8 @@ import QtQuick.Controls
 
 Item {
     id: mainWindow
-    width: 640
-    height: 550
+    width: 512
+    height: 512
     visible: true
 
     signal processorTypeChanged(int type)
@@ -15,7 +15,7 @@ Item {
         anchors.left: parent.left
         anchors.top: parent.top
         height: 480
-        width: 640
+        width: 480
     }
 
     ComboBox {

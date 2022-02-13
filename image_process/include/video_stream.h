@@ -9,7 +9,7 @@ namespace image_process
 class VideoStream : public ImageStream
 {
 public:
-    VideoStream(int deviceId = -1, int apiId = cv::CAP_ANY);
+    VideoStream(int deviceId = 0, int apiId = cv::CAP_ANY);
     ~VideoStream();
 
     cv::Mat read() override;
