@@ -30,7 +30,7 @@ public:
 
 private:
     cv::Mat preprocess(const cv::Mat& image);
-    std::function<cv::Mat(const std::vector<cv::Mat>&)> postprocess;
+    std::function<cv::Mat(const cv::Mat&,const std::vector<cv::Mat>&)> postprocess;
     //cv::Mat postprocess(const std::vector<cv::Mat>& predicts);
     //std::vector<cv::Mat> predict(const cv::Mat& input);
 

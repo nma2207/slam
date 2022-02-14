@@ -6,6 +6,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include <iostream>
+#include <fstream>
 
 namespace {
 
@@ -37,9 +38,103 @@ int64_t getSize(const std::vector<int64_t> shape)
 {
     return std::accumulate(shape.begin(), shape.end(), 1, std::multiplies());
 }
-cv::Mat onnxPostProcess(const std::vector<cv::Mat>&)
+
+std::vector<std::string> loadClassNames(const std::string& path)
 {
-    return {};
+    // load class names
+    std::cout << "Load class names";
+    std::vector<std::string> classNames;
+    std::ifstream infile(path);
+    if (infile.good())
+    {
+        std::string line;
+        while (getline (infile, line))
+        {
+            if (line.back() == '\r')
+                line.pop_back();
+            classNames.emplace_back(line);
+        }
+        infile.close();
+    }
+    else
+    {
+        std::cerr << "ERROR: Failed to access class name path: " << path << std::endl;
+    }
+
+    return classNames;
+}
+
+std::pair<int, float> getBestClass(const cv::Mat& output, int row)
+{
+    constexpr int classCount = 80;
+    std::pair<int, float> bestClass = {0, output.at<float>(0, row, 5)};
+    for(int i = 1; i<classCount; i++)
+    {
+        float conf = output.at<float>(0, row, i+5);
+        if (conf > bestClass.second)
+        {
+            bestClass = {i, conf};
+        }
+    }
+    return bestClass;
+}
+
+cv::Mat onnxPostProcess(const cv::Mat& input,const std::vector<cv::Mat>& outputs)
+{
+    static const std::vector<std::string> classNames = loadClassNames("classnames.txt");
+    constexpr float confThreshold = 0.25f;
+    constexpr float iouThreshold = 0.4f;
+    const cv::Mat& output = outputs.front();
+    //std::cout << output.size << std::endl;
+    const int n = output.size[1];
+    int k =0;
+    std::vector<cv::Rect> boxes;
+    std::vector<float> confs;
+    std::vector<int> classes;
+    for (int i = 0; i < n; i++)
+    {
+        float score = output.at<float>(0, i, 4);
+        if (score > confThreshold)
+        {
+            int x = output.at<float>(0, i, 0);
+            int y = output.at<float>(0, i, 1);
+            int width = output.at<float>(0, i, 2);
+            int height = output.at<float>(0, i, 3);
+            x -= width /2;
+            y -= height/2;
+            auto best = getBestClass(output, i);
+            boxes.emplace_back(cv::Rect(x, y, width, height));
+            confs.emplace_back(best.second * score);
+            classes.emplace_back(best.first);
+            //std::cout << x << " " << y <<" " << width <<" " << height << std::endl;
+
+
+        }
+    }
+
+    std::vector<int> indices;
+    cv::dnn::NMSBoxes(boxes, confs, confThreshold, iouThreshold, indices);
+
+    for(int i : indices)
+    {
+        //std::cout << classNames[classes[i]];
+        int x = boxes[i].x;
+        int y = boxes[i].y;
+
+        int conf = confs[i] * 100;
+        cv::rectangle(input, boxes[i], cv::Scalar((1 - confs[i])* 255,255 * confs[i], 127), 2);
+        std::string label =  classNames[classes[i]] + "0." +std::to_string(conf);
+        int baseline = 0;
+        cv::Size size = cv::getTextSize(label, cv::FONT_ITALIC, 0.8, 2, &baseline);
+        cv::rectangle(input,
+                      cv::Point(x, y - 25), cv::Point(x + size.width, y),
+                      cv::Scalar(229, 160, 21), -1);
+
+        cv::putText(input, label,
+                    cv::Point(x, y - 3), cv::FONT_ITALIC,
+                    0.8, cv::Scalar(255, 255, 255), 2);
+    }
+    return input;
 }
 
 } // namespace
@@ -58,12 +153,10 @@ image_process::OnnxNextwork::OnnxNextwork(const std::string& modelPath)
         Ort::TypeInfo typeInfo = m_session.GetInputTypeInfo(i);
         m_input.shapes.push_back(typeInfo.GetTensorTypeAndShapeInfo().GetShape());
         m_input.names.push_back(m_session.GetInputName(i, m_allocator));
-        for(auto& t: m_input.shapes[i])
-        {
-            if (t < 0)
-                t = 1;
-        }
     }
+    m_input.shapes[0][0] = 1;
+    m_input.shapes[0][2] = 480;
+    m_input.shapes[0][3] = 480;
 
 
     std::cout << "Output count" << m_session.GetOutputCount() << std::endl;
@@ -89,12 +182,19 @@ cv::Mat image_process::OnnxNextwork::process(const cv::Mat &image)
     std::vector<float> inputTensorValues(inputTensorSize);
     inputTensorValues.assign(preprocessedImage.begin<float>(), preprocessedImage.end<float>());
 
-
+    std::vector<Ort::Value> inputTensors;
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>
             (m_memoryInfo, inputTensorValues.data(), inputTensorSize, m_input.shapes[0].data(), m_input.shapes[0].size());
 
+    inputTensors.emplace_back(std::move(inputTensor));
+
+//    float inputShape[] = {416, 416};
+
+//    Ort::Value shape = Ort::Value::CreateTensor<float>(m_memoryInfo, inputShape, 2, m_input.shapes[1].data(), m_input.shapes[1].size());
+
+//    inputTensors.emplace_back(std::move(shape));
     std::vector<Ort::Value> outputTensors = m_session.Run(
-                Ort::RunOptions{nullptr}, m_input.names.data(), &inputTensor, 1, m_output.names.data(), m_output.count);
+                Ort::RunOptions{nullptr}, m_input.names.data(), inputTensors.data(), m_input.count, m_output.names.data(), m_output.count);
 
     std::vector<cv::Mat> predicts;
     predicts.reserve(outputTensors.size());
@@ -103,8 +203,10 @@ cv::Mat image_process::OnnxNextwork::process(const cv::Mat &image)
     {
 
         auto shape = tensor.GetTensorTypeAndShapeInfo().GetShape();
-        int64_t count = getSize(shape);
-        std::cout << "Output count" << count;
+        //printVector(shape);
+        int64_t count = tensor.GetTensorTypeAndShapeInfo().GetElementCount();
+        //int64_t count = getSize(shape);
+        //std::cout << "Output count" << count << std::endl;
         const float *arr = tensor.GetTensorData<float>();
         std::vector<float> vec;
         vec.assign(arr, arr+count);
@@ -112,8 +214,7 @@ cv::Mat image_process::OnnxNextwork::process(const cv::Mat &image)
         predicts.push_back(predict);
     }
 
-    //return postprocess(predicts);
-    return image;
+    return postprocess(image, predicts);
 }
 
 cv::Mat image_process::OnnxNextwork::preprocess(const cv::Mat &image)

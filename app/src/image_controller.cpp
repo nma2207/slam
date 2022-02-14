@@ -24,7 +24,7 @@ std::unique_ptr<image_process::ImageProcessor> getProcessor(app::ProcessorType::
         break;
 
     case app::ProcessorType::Yolo:
-        return std::make_unique<image_process::OnnxNextwork>("ssd-12-int8.onnx");
+        return std::make_unique<image_process::OnnxNextwork>("yolov5n.onnx");
         break;
     }
 

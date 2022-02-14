@@ -24,7 +24,7 @@ cv::Mat image_process::VideoStream::read()
     cv::Mat result;
 
     m_cap.read(result);
-    std::cout << result.size << std::endl;
+    //std::cout << result.size << std::endl;
     cv::Rect myRoi(80,0,480,480);
     result = result(myRoi);
     return result;
