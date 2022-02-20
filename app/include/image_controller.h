@@ -10,23 +10,18 @@
 namespace app
 {
 
-class ProcessorType : public QObject
-{
-    Q_OBJECT
-public:
-    enum State
-    {
-        None,
-        OrbExtractor,
-        Yolo
-    };
-    Q_ENUM(State)
-};
-
 class ImageController : public QObject
 {
     Q_OBJECT
 public:
+    enum class ProcessorType
+    {
+        None,
+        OrbExtractor,
+        YoloV5
+    };
+    Q_ENUM(ProcessorType)
+
     explicit ImageController(QObject *parent = nullptr);
     QPixmap getImage();
     //void setExtractor(const std::shared_ptr<image_process::FeatureExtractor> &newExtractor);

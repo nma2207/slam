@@ -3,10 +3,12 @@
 #include <QQuickView>
 #include <QQuickItem>
 #include <QtQml/qqml.h>
-
+#include <QVariant>
 #include "image_controller.h"
 #include "image_holder.h"
 #include "orb_extractor.h"
+
+#include <QMetaObject>
 
 
 
@@ -31,6 +33,14 @@ int main(int argc, char *argv[])
 
     QObject::connect(&controller, SIGNAL(imageChanged()), rootObject, SLOT(updateImage()));
     QObject::connect(rootObject, SIGNAL(processorTypeChanged(int)), &controller, SLOT(onProcessorTypeChanged(int)));
+
+    auto processorTypeMetaEnum = QMetaEnum::fromType<app::ImageController::ProcessorType>();
+    for(int i=0; i< processorTypeMetaEnum.keyCount(); i++)
+    {
+        QString name = QString::fromUtf8(processorTypeMetaEnum.valueToKey(i));
+        QMetaObject::invokeMethod(rootObject, "addProcessorType", QGenericReturnArgument{},
+                                  Q_ARG(QString,  name));
+    }
 
     view.show();
     view.setTitle("SLAM");

@@ -9,21 +9,23 @@
 #include "orb_extractor.h"
 #include "onnx_nextwork.h"
 
+#include "enum_helper.h"
+
 namespace
 {
-std::unique_ptr<image_process::ImageProcessor> getProcessor(app::ProcessorType::State type)
+std::unique_ptr<image_process::ImageProcessor> getProcessor(app::ImageController::ProcessorType type)
 {
     switch (type)
     {
-    case app::ProcessorType::None:
+    case app::ImageController::ProcessorType::None:
         return nullptr;
         break;
 
-    case app::ProcessorType::OrbExtractor:
+    case app::ImageController::ProcessorType::OrbExtractor:
         return std::make_unique<image_process::OrbExtractor>();
         break;
 
-    case app::ProcessorType::Yolo:
+    case app::ImageController::ProcessorType::YoloV5:
         return std::make_unique<image_process::OnnxNextwork>("yolov5n.onnx");
         break;
     }
@@ -59,7 +61,8 @@ QPixmap app::ImageController::getImage()
 
 void app::ImageController::onProcessorTypeChanged(int t)
 {
-    ProcessorType::State type = static_cast<ProcessorType::State>(t);
+    //ProcessorType type= enum_helper::fromString<ProcessorType>(t.toString());
+    ProcessorType type = static_cast<ProcessorType>(t);
     qDebug() << type;
 
     auto newProcessor = getProcessor(type);

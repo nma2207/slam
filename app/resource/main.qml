@@ -19,25 +19,26 @@ Item {
     }
 
     ComboBox {
+        id:typesBox
         anchors.top: img.bottom
-        anchors.left: parent.leftor
+        anchors.left: parent.left
         textRole: "text"
-        valueRole: "value"
-        Component.onCompleted: currentIndex = indexOfValue(0)
+                valueRole: "value"
         model: ListModel{
             id: model
-            ListElement{ value: 0; text: qsTr("None") }
-            ListElement{ value: 1; text: qsTr("OrbExtractor") }
-            ListElement{ value: 2; text: qsTr("Yolo detector") }
         }
         onCurrentValueChanged: {
             processorTypeChanged(currentValue)
         }
+
     }
 
-    function updateImage()
-    {
+    function updateImage() {
         img.source = "image://imageholder/row?" + Math.random()
+    }
+    function addProcessorType(newType: string) {
+        console.log(typesBox.model.count)
+        typesBox.model.append({value: typesBox.model.count, text: newType})
     }
 
 }
